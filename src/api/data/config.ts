@@ -1,6 +1,15 @@
 import fetch from "node-fetch";
 import { CONFIGURATION_URL } from "../../settings";
 
+// Additional libgen mirrors to extend the remote configuration
+const ADDITIONAL_MIRRORS = [
+  "https://libgen.vg",
+  "https://libgen.bz",
+  "https://libgen.gs",
+  "https://libgen.la",
+  "https://libgen.gl"
+];
+
 export interface Config {
   latestVersion: string;
   mirrors: string[];
@@ -17,9 +26,11 @@ export async function fetchConfig(): Promise<Config> {
     const json = await response.json();
     const conf = json as Record<string, unknown>;
 
+    const remoteMirrors = (conf["mirrors"] as string[]) || [];
+
     return {
       latestVersion: (conf["latest_version"] as string) || "",
-      mirrors: (conf["mirrors"] as string[]) || [],
+      mirrors: [...remoteMirrors, ...ADDITIONAL_MIRRORS],
       searchReqPattern: (conf["searchReqPattern"] as string) || "",
       searchByMD5Pattern: (conf["searchByMD5Pattern"] as string) || "",
       MD5ReqPattern: (conf["MD5ReqPattern"] as string) || "",
